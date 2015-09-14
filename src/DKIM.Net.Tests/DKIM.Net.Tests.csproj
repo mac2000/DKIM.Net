@@ -67,11 +67,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="mycert.pem">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\DKIM.Net\DKIM.Net.csproj">
       <Project>{1cfb14b2-e0ff-4491-820f-490cffbaa47a}</Project>
       <Name>DKIM.Net</Name>

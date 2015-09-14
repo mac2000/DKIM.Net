@@ -8,11 +8,7 @@ namespace DKIM.Net.Tests
     [TestClass]
     public class PrivateKeySignerTests
     {
-        [TestMethod]
-        public void Create()
-        {
-            var s = PrivateKeySigner.Create(
-                @"-----BEGIN RSA PRIVATE KEY-----
+        private readonly string PrivateKey = @"-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQDcruApwJruvr9GHYMnUlkOevmczah961FxiQXu7JwHiepKGkVf
 9f8DvzSiMprrqoR14f4puAi5PAG+MBxkvbAMI/kCc57E8nEN4ZGxKPRtuhiY6bsP
 SpxI7LXgHqlt/yOFrJNdTjSwGpAlVfNMd3BnP2RSlHgj58ZSwYYhG15OmQIDAQAB
@@ -26,7 +22,12 @@ yti/H0ftuGd1OxHjT0RskZXVc4aoztXqkBHin7P1QnL/l20YXw73EUqCKdECQEvf
 HzQArQBJlTivAgNZMi+6WG1Pzwj52YYrxzNEcTj94HvnoTXpx0Req/fITNCvZE3a
 3AYbYbdow1d3wLSe97kCQGfHreVl7MWOEk/5y0NASxaolY4+aFoXLwkGe1qIN2Vu
 xsjBBm9osDHsFVIuggd4fYKj05IWA6jX4z1LiRnLvVc=
------END RSA PRIVATE KEY-----");
+-----END RSA PRIVATE KEY-----";
+
+        [TestMethod]
+        public void Create()
+        {
+            var s = PrivateKeySigner.Create(PrivateKey);
 
 
             s.Sign(Encoding.Default.GetBytes("some text to sign."), SigningAlgorithm.RSASha1);
@@ -36,8 +37,10 @@ xsjBBm9osDHsFVIuggd4fYKj05IWA6jX4z1LiRnLvVc=
         [TestMethod]
         public void Load()
         {
-            var s = PrivateKeySigner.LoadFromFile(Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase, "mycert.pem"));
+            var tempFile = Path.GetTempFileName();
+            File.WriteAllText(tempFile, PrivateKey);
 
+            var s = PrivateKeySigner.LoadFromFile(tempFile);
 
             s.Sign(Encoding.Default.GetBytes("some text to sign."), SigningAlgorithm.RSASha1);
 
