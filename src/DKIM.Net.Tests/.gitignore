@@ -1,5 +1,4 @@
 bin/
 obj/
-App.config
 *.suo # VS solution user options
 *.user # VS project user options

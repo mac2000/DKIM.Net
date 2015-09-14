@@ -1,19 +1,18 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO;
 using System.Text;
-using NUnit.Framework;
 
-namespace DKIM.Tests
+namespace DKIM.Net.Tests
 {
-	[TestFixture]
-	public class PrivateKeySignerTests
-	{
-
-		[Test]
-		public void Create()
-		{
-			var s = PrivateKeySigner.Create(
-				@"-----BEGIN RSA PRIVATE KEY-----
+    [TestClass]
+    public class PrivateKeySignerTests
+    {
+        [TestMethod]
+        public void Create()
+        {
+            var s = PrivateKeySigner.Create(
+                @"-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQDcruApwJruvr9GHYMnUlkOevmczah961FxiQXu7JwHiepKGkVf
 9f8DvzSiMprrqoR14f4puAi5PAG+MBxkvbAMI/kCc57E8nEN4ZGxKPRtuhiY6bsP
 SpxI7LXgHqlt/yOFrJNdTjSwGpAlVfNMd3BnP2RSlHgj58ZSwYYhG15OmQIDAQAB
@@ -30,18 +29,18 @@ xsjBBm9osDHsFVIuggd4fYKj05IWA6jX4z1LiRnLvVc=
 -----END RSA PRIVATE KEY-----");
 
 
-			s.Sign(Encoding.Default.GetBytes("some text to sign."), SigningAlgorithm.RSASha1);
+            s.Sign(Encoding.Default.GetBytes("some text to sign."), SigningAlgorithm.RSASha1);
 
-		}
+        }
 
-		[Test]
-		public void Load()
-		{
-			var s = PrivateKeySigner.LoadFromFile( Path.Combine(AppDomain.CurrentDomain.BaseDirectory , "mycert.pem"));
+        [TestMethod]
+        public void Load()
+        {
+            var s = PrivateKeySigner.LoadFromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mycert.pem"));
 
 
-			s.Sign(Encoding.Default.GetBytes("some text to sign."), SigningAlgorithm.RSASha1);
+            s.Sign(Encoding.Default.GetBytes("some text to sign."), SigningAlgorithm.RSASha1);
 
-		}
-	}
+        }
+    }
 }

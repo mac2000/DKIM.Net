@@ -1,34 +1,34 @@
-﻿using NUnit.Framework;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DKIM.Tests.Dkim
+namespace DKIM.Net.Tests.Dkim
 {
-	[TestFixture]
-	public class Body
-	{
-
-		[TestCase(null, Email.NewLine, DkimCanonicalizationAlgorithm.Simple)]
-		[TestCase("", Email.NewLine, DkimCanonicalizationAlgorithm.Simple)]
-		[TestCase("a", "a" + Email.NewLine, DkimCanonicalizationAlgorithm.Simple)]
-		[TestCase(@"a
-b
-c", @"a
+    [TestClass]
+    public class Body
+    {
+        [TestMethod]
+        public void C()
+        {
+            //Assert.AreEqual(expected, DkimCanonicalizer.CanonicalizeBody(orig, type));
+            Assert.AreEqual(Email.NewLine, DkimCanonicalizer.CanonicalizeBody(null, DkimCanonicalizationAlgorithm.Simple));
+            Assert.AreEqual(Email.NewLine, DkimCanonicalizer.CanonicalizeBody("", DkimCanonicalizationAlgorithm.Simple));
+            Assert.AreEqual("a" + Email.NewLine, DkimCanonicalizer.CanonicalizeBody("a", DkimCanonicalizationAlgorithm.Simple));
+            Assert.AreEqual(@"a
 b
 c
-", DkimCanonicalizationAlgorithm.Simple)]
-		[TestCase(@"a
-
+", DkimCanonicalizer.CanonicalizeBody(@"a
 b
-
-c
-", @"a
+c", DkimCanonicalizationAlgorithm.Simple));
+            Assert.AreEqual(@"a
 
 b
 
 c
-", DkimCanonicalizationAlgorithm.Simple)]
-		public void C(string orig, string expected, DkimCanonicalizationAlgorithm type)
-		{
-			Assert.AreEqual(expected, DkimCanonicalizer.CanonicalizeBody(orig, type));
-		}
-	}
+", DkimCanonicalizer.CanonicalizeBody(@"a
+
+b
+
+c
+", DkimCanonicalizationAlgorithm.Simple));
+        }
+    }
 }

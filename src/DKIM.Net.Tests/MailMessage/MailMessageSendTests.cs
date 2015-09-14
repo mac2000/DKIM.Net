@@ -1,142 +1,88 @@
-﻿using System.Configuration;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 using System.Net.Mail;
-using NUnit.Framework;
 
-namespace DKIM.Tests
+namespace DKIM.Net.Tests.MailMessage
 {
-
-
-    /// <summary>
-    /// tests sending signed MailMessage emails 
-    /// tested with yahoo and gmail addresses and both pass
-    /// </summary>
-    [TestFixture]
+    [TestClass]
     public class MailMessageSendTests
     {
-        private readonly string _from, _to, _domain, _selector, _privateKey;
+        public string PrivateKey = @"-----BEGIN RSA PRIVATE KEY-----
+MIICWwIBAAKBgQC7tQiBtxdeRdH8XFGlyxf8qjJoyOJVfJrCbvHJVJG+ZiGzemZz
+HvhurYEAj/2N9eL2qQWN3PzdJX4s7cFt2Wvdmj/MOGmIwPP6x2224ooSUp7FAeG3
+H/ODMoAqDyXsdIC8mTj7YKpKCUki7/m3VDACSiOhfNxeAkykalHG/bjUuwIDAQAB
+AoGAVGFkSpOY8KsoY27I0WQEC3QjJxGvFUjndSJUlPHsdpAI9FrAtV2lxnM+u5b/
+H5L6jXGb6pL+JRfWqbHTs2L65qRlSnv9S+priPgryXHY/cORtBNgdMwNfjMJhPxE
+CY3vw4KBL2L0IxRqoZeVsmu8g1cLKMrLVRXAcF7rWJnR8yECQQDzd1+iMTKu1c+4
+FzZn17dscCVbeWBvvIXvkNRpa1dnadBEGqBxIYQMLUeqAsGAyF1aHZUWruZfOFeu
+4Qlqo9MRAkEAxV7QR0l2xYresNwNrWnK9lB7F8HCogxoplp3dbyd++8NVSxhhWWQ
+PVgBPozRiycSgbuUzEKeVtDrr2zi9ryTCwJAZZH+nr6ho1jl4Komc2oGRsH+g8v+
+VH807T3hr90tSKJXVaI6HxhZa28Uf7PIoH52m5rN0PnEeCMcSYPulsOj0QJAMUXH
+R1Suwwg1Kf/1pio4Eh/ravXjSiNA6O7CzfDFnASE1pOa0PuW88mJnfz3vv6FH0Ae
+GJQ1BUVo4UWUr7ZKGwJANCEGFsILGGdMaZhmuZcUqphoR7um0Sa7sQQHiUzQuJZe
+6GaqmpEox9En9rUPIkRog8wpvWPtb3njTqmTbk8VMg==
+-----END RSA PRIVATE KEY-----";
 
+        public System.Net.Mail.MailMessage Message { get; set; }
+        public SmtpClient Smtp { get; set; }
+        public DkimSigner DkimSigner { get; set; }
+        public DomainKeySigner DomainKeySigner { get; set; }
 
-        public MailMessageSendTests()
-        {
-            _from = ConfigurationManager.AppSettings["from"];
-            _to = ConfigurationManager.AppSettings["to"];
-
-            _domain = ConfigurationManager.AppSettings["domain"];
-            _selector = ConfigurationManager.AppSettings["selector"];
-
-            _privateKey = ConfigurationManager.AppSettings["privatekey"];
-        }
-
+        
         static string[] GetHeaders(string headers)
         {
             return headers == null ? null : headers.Split(',');
         }
 
-
-        [TestCase(null)]
-        [TestCase("From,To,Subject")]
-        public void Valid_send_sign_DKIM(string headers)
+        [TestInitialize]
+        public void TestInitialize()
         {
+            Message = new System.Net.Mail.MailMessage();
+            Message.To.Add(new MailAddress("jim@acme.com", "Jim Bob"));
+            Message.From = new MailAddress("joe@acme.com", "Joe Bloggs");
+            Message.Subject = "Test DKIM Message";
+            Message.Body = "A simple message";
 
-            var msg = new MailMessage();
-            msg.To.Add(new MailAddress(_to, "Jim Bob"));
-            msg.From = new MailAddress(_from, "Joe Bloggs");
-            msg.Subject = "Test DKIM Message";
-            msg.Body = "A simple message";
+            Smtp = new SmtpClient();
+            Smtp.DeliveryMethod = SmtpDeliveryMethod.SpecifiedPickupDirectory;
+            Smtp.PickupDirectoryLocation = Path.GetTempPath();
 
-
-            var dkimSigner = new DkimSigner(PrivateKeySigner.Create(_privateKey), _domain, _selector, GetHeaders(headers));
-
-            msg.DkimSign(dkimSigner);
-
-            var smtp = new SmtpClient();
-
-            smtp.Send(msg);
-
-
-
+            DkimSigner = new DkimSigner(PrivateKeySigner.Create(PrivateKey), "acme.com", "dkim", GetHeaders("From,To,Subject"));
+            DomainKeySigner = new DomainKeySigner(PrivateKeySigner.Create(PrivateKey), "acme.com", "dkim", GetHeaders("From,To,Subject"));
         }
 
-
-
-        [TestCase(null)]
-        [TestCase("From,To,Subject")]
-        public void Valid_send_sign_DomainKey(string headers)
+        [TestMethod]
+        public void Valid_send_sign_DKIM()
         {
+            Message.DkimSign(DkimSigner);
 
-            var msg = new MailMessage();
-            msg.To.Add(new MailAddress(_to, "Jim Bob"));
-            msg.From = new MailAddress(_from, "Joe Bloggs");
-            msg.Subject = "Test DomainKeys Message";
-            msg.Body = "A simple message";
-
-
-            var domainKeySigner = new DomainKeySigner(PrivateKeySigner.Create(_privateKey), _domain, _selector, GetHeaders(headers));
-
-            msg.DomainKeySign(domainKeySigner);
-
-            var smtp = new SmtpClient();
-
-            smtp.Send(msg);
-
-
-
+            Smtp.Send(Message);
         }
 
-
-        [TestCase(null)]
-        [TestCase("From,To,Subject")]
-        public void Valid_send_sign_DKIM_then_DomainKey(string headers)
+        [TestMethod]
+        public void Valid_send_sign_DomainKey()
         {
-            var msg = new MailMessage();
-            msg.To.Add(new MailAddress(_to, "Jim Bob"));
-            msg.From = new MailAddress(_from, "Joe Bloggs");
-            msg.Subject = "Test DKIM & DomainKeys Message";
-            msg.Body = "A simple message";
+            Message.DomainKeySign(DomainKeySigner);
 
-
-            var dkimSigner = new DkimSigner(PrivateKeySigner.Create(_privateKey), _domain, _selector, GetHeaders(headers));
-
-            msg.DkimSign(dkimSigner);
-
-
-            var domainKeySigner = new DomainKeySigner(PrivateKeySigner.Create(_privateKey), _domain, _selector, GetHeaders(headers));
-
-            msg.DomainKeySign(domainKeySigner);
-
-            var smtp = new SmtpClient();
-
-            smtp.Send(msg);
+            Smtp.Send(Message);
         }
 
-
-        [TestCase(null)]
-        [TestCase("From,To,Subject")]
-        public void Valid_send_sign_DomainKey_then_DKIM(string headers)
+        [TestMethod]
+        public void Valid_send_sign_DKIM_then_DomainKey()
         {
-            var msg = new MailMessage();
-            msg.To.Add(new MailAddress(_to, "Jim Bob"));
-            msg.From = new MailAddress(_from, "Joe Bloggs");
-            msg.Subject = "Test DomainKeys & DKIM Message";
-            msg.Body = "A simple message";
+            Message.DkimSign(DkimSigner);
+            Message.DomainKeySign(DomainKeySigner);
 
+            Smtp.Send(Message);
+        }
 
+        [TestMethod]
+        public void Valid_send_sign_DomainKey_then_DKIM()
+        {
+            Message.DomainKeySign(DomainKeySigner);
+            Message.DkimSign(DkimSigner);
 
-            var domainKeySigner = new DomainKeySigner(PrivateKeySigner.Create(_privateKey), _domain, _selector, GetHeaders(headers));
-
-            msg.DomainKeySign(domainKeySigner);
-
-
-            var dkimSigner = new DkimSigner(PrivateKeySigner.Create(_privateKey), _domain, _selector, GetHeaders(headers));
-
-            msg.DkimSign(dkimSigner);
-
-
-
-
-            var smtp = new SmtpClient();
-
-            smtp.Send(msg);
+            Smtp.Send(Message);
         }
     }
 }

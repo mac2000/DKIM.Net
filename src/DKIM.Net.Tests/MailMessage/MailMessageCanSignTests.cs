@@ -1,53 +1,43 @@
-﻿using System.IO;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net.Mail;
-using System.Net.Mime;
 using System.Reflection;
-using NUnit.Framework;
+using System.Net.Mime;
+using System.IO;
 
-namespace DKIM.Tests
+namespace DKIM.Net.Tests.MailMessage
 {
-
-    [TestFixture]
+    [TestClass]
     public class MailMessageCanSignTests
     {
-
-        [Test]
+        [TestMethod]
         public void Can_sign()
         {
-            var msg = new MailMessage("from@domain.com", "to@domain.com", "subject", "body");
-
-            //Console.WriteLine(msg.GetText());
+            var msg = new System.Net.Mail.MailMessage("from@domain.com", "to@domain.com", "subject", "body");
 
             Assert.IsTrue(msg.CanSign());
-
         }
 
-        [Test]
+        [TestMethod]
         public void Cannot_sign_multiple_alt_views()
         {
-            var msg = new MailMessage("from@domain.com", "to@domain.com", "subject", "body");
+            var msg = new System.Net.Mail.MailMessage("from@domain.com", "to@domain.com", "subject", "body");
 
             var htmlView = AlternateView.CreateAlternateViewFromString("<p>some html</p>", new ContentType(@"text/html"));
             msg.AlternateViews.Add(htmlView);
-            
-            //Console.WriteLine(msg.GetText());
 
             Assert.IsFalse(msg.CanSign());
-
         }
 
-        [Test]
+        [TestMethod]
         public void Cannot_sign_attachment()
         {
-            var msg = new MailMessage("from@domain.com", "to@domain.com", "subject", "body");
+            var msg = new System.Net.Mail.MailMessage("from@domain.com", "to@domain.com", "subject", "body");
 
-            var path = Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location) + @"\MailMessage\Attachment.htm";
+            var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\MailMessage\Attachment.htm";
             var attachment = new Attachment(path, new ContentType(@"text/html"));
             msg.Attachments.Add(attachment);
 
-            //Console.WriteLine(msg.GetText());
             Assert.IsFalse(msg.CanSign());
-
         }
     }
 }

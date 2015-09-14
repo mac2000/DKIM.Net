@@ -1,51 +1,48 @@
-﻿using NUnit.Framework;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DKIM.Tests
+namespace DKIM.Net.Tests
 {
-
-    [TestFixture]
+    [TestClass]
     public class WhiteSpaceTests
     {
-        [TestCase(' ', true)]
-        [TestCase('\t', true)]
-        [TestCase('\n', true)]
-        [TestCase('\r', true)]
-        [TestCase('a', false)]
-        [TestCase('1', false)]
-        [TestCase('*', false)]
-        public void IsWhiteSpace(char c, bool isWhiteSpace)
+        [TestMethod]
+        public void IsWhiteSpace()
         {
-            Assert.AreEqual(isWhiteSpace, c.IsWhiteSpace());
+            Assert.AreEqual(true, ' '.IsWhiteSpace());
+            Assert.AreEqual(true, '\t'.IsWhiteSpace());
+            Assert.AreEqual(true, '\n'.IsWhiteSpace());
+            Assert.AreEqual(true, '\r'.IsWhiteSpace());
+            Assert.AreEqual(false, 'a'.IsWhiteSpace());
+            Assert.AreEqual(false, '1'.IsWhiteSpace());
+            Assert.AreEqual(false, '*'.IsWhiteSpace());
         }
 
-
-        [TestCase("  a     b    c  ", " a b c")]
-        [TestCase(@"      a      
+        [TestMethod]
+        public void ReduceWhiteSpace()
+        {
+            Assert.AreEqual(" a b c", "  a     b    c  ".ReduceWitespace());
+            Assert.AreEqual(" a b c", @"      a      
 
 
      b   
 
 c    
 
-", " a b c")]
-        public void ReduceWhiteSpace(string text, string reduced)
-        {
-            Assert.AreEqual(reduced, text.ReduceWitespace());
+".ReduceWitespace());
         }
 
-        [TestCase("  a     b    c  ", "abc")]
-        [TestCase(@"      a      
+        [TestMethod]
+        public void RemoveWhiteSpace()
+        {
+            Assert.AreEqual("abc", "  a     b    c  ".RemoveWhitespace());
+            Assert.AreEqual("abc", @"      a      
 
 
      b   
 
 c    
 
-", "abc")]
-        public void RemoveWhiteSpace(string text, string reduced)
-        {
-            Assert.AreEqual(reduced, text.RemoveWhitespace());
+".RemoveWhitespace());
         }
-
     }
 }
