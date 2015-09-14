@@ -36,7 +36,7 @@ xsjBBm9osDHsFVIuggd4fYKj05IWA6jX4z1LiRnLvVc=
         [TestMethod]
         public void Load()
         {
-            var s = PrivateKeySigner.LoadFromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mycert.pem"));
+            var s = PrivateKeySigner.LoadFromFile(Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase, "mycert.pem"));
 
 
             s.Sign(Encoding.Default.GetBytes("some text to sign."), SigningAlgorithm.RSASha1);
