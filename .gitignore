@@ -1,3 +1,4 @@
 *ReSharper*
 *.suo
 *.user
+*.nupkg

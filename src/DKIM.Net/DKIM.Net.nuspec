@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Damien McGivern</authors>
+    <owners>Damien McGivern</owners>
+    <projectUrl>https://github.com/dmcgiv/DKIM.Net</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Initial nuget spec.</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>dkim mail</tags>
+  </metadata>
+</package>
